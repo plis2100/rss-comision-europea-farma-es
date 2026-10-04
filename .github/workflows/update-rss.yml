@@ -6,7 +6,7 @@ on:
   schedule:
     # GitHub Actions utiliza UTC.
     # Se ejecuta cada hora.
-    - cron: "17 * * * *"
+    - cron: "17 */3 * * *""
 
 permissions:
   contents: write
