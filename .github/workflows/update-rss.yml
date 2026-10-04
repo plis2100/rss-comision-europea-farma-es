@@ -1,12 +1,10 @@
-name: Actualizar RSS Comisión Europea
+name: Actualizar RSS Comision Europea
 
 on:
   workflow_dispatch:
 
   schedule:
-    # GitHub Actions utiliza UTC.
-    # Se ejecuta cada hora.
-    - cron: "17 * * * *""
+    - cron: "17 */3 * * *"
 
 permissions:
   contents: write
@@ -18,7 +16,6 @@ concurrency:
 jobs:
   actualizar:
     runs-on: ubuntu-latest
-
     timeout-minutes: 15
 
     steps:
@@ -29,7 +26,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
 
       - name: Instalar dependencias
         run: |
@@ -43,33 +39,17 @@ jobs:
       - name: Comprobar RSS
         run: |
           test -f feed.xml
-          python - <<'PY'
-          import xml.etree.ElementTree as ET
-
-          tree = ET.parse("feed.xml")
-          root = tree.getroot()
-
-          items = root.findall("./channel/item")
-
-          print("Entradas RSS:", len(items))
-
-          for item in items[:10]:
-              title = item.findtext("title")
-              date = item.findtext("pubDate")
-              print(title)
-              print("Fecha:", date)
-          PY
+          python -c "import xml.etree.ElementTree as ET; tree=ET.parse('feed.xml'); print('Entradas RSS:', len(tree.findall('./channel/item')))"
 
       - name: Guardar cambios
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git add feed.xml
 
           if git diff --cached --quiet; then
             echo "No hay cambios en la RSS."
           else
-            git commit -m "Actualizar RSS Comisión Europea"
+            git commit -m "Actualizar RSS Comision Europea"
             git push
           fi
